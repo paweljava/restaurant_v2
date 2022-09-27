@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+}
+
+group 'org.restaurant'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.postgresql:postgresql:42.5.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.7.3'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.7.3'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
+    implementation 'org.projectlombok:lombok:1.18.24'
+
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    runtimeOnly 'org.postgresql:postgresql:42.5.0'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.3'
+    testImplementation 'org.springframework.security:spring-security-test:5.7.3'
+    testImplementation 'io.rest-assured:rest-assured:5.2.0'
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task generateRestaurantsAndMeals() {
+    doLast {
+        File dataSql = file("src/main/resources/data.sql")
+        /*dataSql.write("delete from public.meal\n" +
+                "delete from public.restaurant \n \n")
+        //restaurants
+        Random random = new Random();
+        for (int i = 1; i<=100; i++) {
+            dataSql.append("insert into restaurant(uuid, name, address, type) " +
+            "values ('${UUID.randomUUID()}', 'Restauracja${i}', 'Opole ${i}', 'ASIAN')\n")
+        }
+        //meals
+        for (int i = 1; i<=20; i++) {
+            dataSql.append("insert into meal(uuid, restaurant_uuid, name, price) " +
+                    "values ('${UUID.randomUUID()}', 'Restauracja${i}', 'Kotlet ${i}', 11)\n")
+        }*/
+    }
+}
