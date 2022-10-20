@@ -1,12 +1,14 @@
 package com.restaurant.controller;
 
-import com.restaurant.model.CreateRestaurantDto;
+import com.restaurant.dto.restaurant.CreateRestaurantDto;
+import com.restaurant.dto.restaurant.RestaurantDto;
+import com.restaurant.dto.restaurant.UpdateRestaurantDto;
 import com.restaurant.model.Restaurant;
-import com.restaurant.model.UpdateRestaurantDto;
 import com.restaurant.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,28 +24,29 @@ public class RestaurantController {
     }
 
     @PostMapping
-    public Restaurant createRestaurant(@RequestBody CreateRestaurantDto createRestaurantDto) {
-        return restaurantService.restaurantAdd(createRestaurantDto);
+    public Restaurant createRestaurant(@Valid @RequestBody CreateRestaurantDto createRestaurantDto) {
+        return restaurantService.addRestaurant(createRestaurantDto);
     }
 
-    @GetMapping()
+    @GetMapping
     public List<Restaurant> getAllRestaurants() {
         return restaurantService.getAllRestaurants();
     }
 
-    @GetMapping("/{uuid}")
-    public Restaurant getSingleRestaurantById(@PathVariable("uuid") UUID uuid) {
-        return restaurantService.getSingleRestaurantById(uuid);
+    @GetMapping("/{id}")
+    public RestaurantDto getRestaurantById(@PathVariable("id") UUID id) {
+        return restaurantService.getRestaurantById(id);
     }
 
-    @PutMapping("/{uuid}")
-    public Restaurant updateRestaurant(@PathVariable("uuid") UUID uuid, @RequestBody UpdateRestaurantDto updateRestaurantDto) {
-        return restaurantService.updateRestaurant(uuid, updateRestaurantDto);
+    @PutMapping("/{id}")
+    // poprawic zwracanie dto
+    public Restaurant updateRestaurant(@PathVariable("id") UUID id, @RequestBody UpdateRestaurantDto updateRestaurantDto) {
+        return restaurantService.updateRestaurant(id, updateRestaurantDto);
     }
 
-    @DeleteMapping("/{uuid}")
-    public void deleteRestaurant(@PathVariable("uuid") UUID uuid) {
-        restaurantService.deleteRestaurant(uuid);
+    @DeleteMapping("/{id}")
+    public boolean deleteRestaurant(@PathVariable("id") UUID id) {
+        return restaurantService.deleteRestaurant(id);
     }
 }
 

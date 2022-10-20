@@ -1,29 +1,41 @@
 package com.restaurant.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.restaurant.dto.meal.CreateMealDto;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.Digits;
 import java.util.UUID;
 
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Meal {
 
     @Id
-    private UUID uuid;
-    private UUID restaurantUuid;
+    private UUID id;
+    private UUID restaurantId;
     private String name;
-    private float price;
+    private Float price;
 
-
-    /*public Meal(UUID uuid, String name, float price) {
-        this.uuid = uuid;
+    public Meal(String name, float price) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.price = price;
-    }*/
+    }
+
+    public Meal(UUID restaurantId, String name, float price) {
+        this.id = UUID.randomUUID();
+        this.restaurantId = restaurantId;
+        this.name = name;
+        this.price = price;
+    }
+
+    public Meal(CreateMealDto createMealDto) {
+        this.name = name;
+        this.price = price;
+    }
 }
