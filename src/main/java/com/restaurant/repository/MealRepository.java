@@ -9,5 +9,4 @@ import java.util.UUID;
 
 @Repository
 public interface MealRepository extends JpaRepository<Meal, UUID> {
-    Optional<Meal> findByName(String name);
 }
