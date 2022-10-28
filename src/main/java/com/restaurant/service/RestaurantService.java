@@ -1,14 +1,10 @@
 package com.restaurant.service;
 
 import com.restaurant.common.ExceptionMessages;
-import com.restaurant.dto.restaurant.CreateRestaurantDto;
-import com.restaurant.dto.restaurant.RestaurantDto;
-import com.restaurant.dto.restaurant.UpdateRestaurantDto;
+import com.restaurant.controller.dto.restaurant.CreateRestaurantDto;
+import com.restaurant.controller.dto.restaurant.UpdateRestaurantDto;
 import com.restaurant.model.Restaurant;
-import com.restaurant.model.RestaurantMapper;
 import com.restaurant.repository.RestaurantRepository;
-import com.restaurant.util.Checks;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -16,11 +12,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+import static com.restaurant.util.Checks.checkThat;
+
 @Service
-@NoArgsConstructor
 public class RestaurantService {
 
-    private RestaurantRepository restaurantRepository;
+    private final RestaurantRepository restaurantRepository;
 
     @Autowired
     public RestaurantService(RestaurantRepository restaurantRepository) {
@@ -36,21 +33,20 @@ public class RestaurantService {
         return restaurantRepository.save(restaurant);
     }
 
-    @Cacheable(cacheNames = "AllRestaurants")
+    @Cacheable(cacheNames = "allRestaurants")
     public List<Restaurant> getAllRestaurants() {
         return restaurantRepository.findAll();
     }
 
-    @Cacheable(cacheNames = "RestaurantById")
-    public RestaurantDto getRestaurantById(UUID id) {
-        final var restaurant = findRestaurant(id);
-        return RestaurantMapper.restaurantMapper(restaurant);
+    @Cacheable(cacheNames = "restaurantById")
+    public Restaurant getRestaurantById(UUID id) {
+        return findRestaurant(id);
     }
 
     // immutable method
     public Restaurant updateRestaurant(UUID id, UpdateRestaurantDto request) {
         final var restaurant = findRestaurant(id);
-        Checks.checkThat(atLeastOneFieldPresent(request),
+        checkThat(atLeastOneFieldPresent(request),
                 ExceptionMessages.AT_LEAST_ONE_PROPERTY_SHOULD_BE_PRESENT_EXCEPTION_MESSAGE);
 
         return restaurantRepository.save(new Restaurant(
@@ -75,9 +71,10 @@ public class RestaurantService {
         return restaurantRepository.save(restaurant);
     }*/
 
-    public Restaurant updateRestaurant2(UUID id, UpdateRestaurantDto request) {
+    // immutable method with ifPresentOrElse
+    /*public Restaurant updateRestaurant2(UUID id, UpdateRestaurantDto request) {
         final var restaurant = findRestaurant(id);
-        Checks.checkThat(atLeastOneFieldPresent(request),
+        checkThat(atLeastOneFieldPresent(request),
                 ExceptionMessages.AT_LEAST_ONE_PROPERTY_SHOULD_BE_PRESENT_EXCEPTION_MESSAGE);
         final Restaurant updatedRestaurant;
         updatedRestaurant = restaurant;
@@ -92,8 +89,7 @@ public class RestaurantService {
         updatedRestaurant.setMeals(restaurant.getMeals());
 
         return restaurantRepository.save(updatedRestaurant);
-    }
-
+    }*/
 
     public boolean deleteRestaurant(UUID id) {
         final var restaurant = findRestaurant(id);

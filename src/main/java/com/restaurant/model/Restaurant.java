@@ -1,6 +1,6 @@
 package com.restaurant.model;
 
-import com.restaurant.dto.restaurant.CreateRestaurantDto;
+import com.restaurant.controller.dto.restaurant.CreateRestaurantDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,30 +18,20 @@ import java.util.UUID;
 public class Restaurant {
 
     @Id
-    //@GeneratedValue(generator = "UUID")
     private UUID id;
     private String name;
     private String address;
     @Enumerated(EnumType.STRING)
     private RestaurantType type;
-
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)//(orphanRemoval = true)
     @JoinColumn(name = "restaurantId", updatable = false, insertable = false)
     private List<Meal> meals;
-
 
     public Restaurant(String name, String address, RestaurantType type) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.address = address;
         this.type = type;
-    }
-
-    public Restaurant(CreateRestaurantDto createRestaurantDto) {
-        this.id = UUID.randomUUID();
-        this.name = createRestaurantDto.getName();
-        this.address = createRestaurantDto.getAddress();
-        this.type = createRestaurantDto.getType();
     }
 
     public Restaurant(UUID id, String name, String address, RestaurantType type) {
@@ -59,11 +49,10 @@ public class Restaurant {
         this.meals = meals;
     }
 
-    /*public Restaurant(UUID id, String name, String address, RestaurantType type, List<Meal> meals) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.type = type;
-        this.meals = meals;
-    }*/
+    public Restaurant(CreateRestaurantDto createRestaurantDto) {
+        this.id = UUID.randomUUID();
+        this.name = createRestaurantDto.getName();
+        this.address = createRestaurantDto.getAddress();
+        this.type = createRestaurantDto.getType();
+    }
 }

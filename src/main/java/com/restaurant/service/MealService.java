@@ -1,8 +1,8 @@
 package com.restaurant.service;
 
 import com.restaurant.common.ExceptionMessages;
-import com.restaurant.dto.meal.CreateMealDto;
-import com.restaurant.dto.meal.UpdateMealDto;
+import com.restaurant.controller.dto.meal.CreateMealDto;
+import com.restaurant.controller.dto.meal.UpdateMealDto;
 import com.restaurant.model.Meal;
 import com.restaurant.model.Restaurant;
 import com.restaurant.repository.MealRepository;
@@ -27,8 +27,8 @@ public class MealService {
     }
 
     public Meal addMealToRestaurant(UUID id, CreateMealDto createMealDto) {
-        var restaurant = findRestaurant(id);
-        var meal = new Meal(restaurant.getId(), createMealDto.getName(), createMealDto.getPrice());
+        final var restaurant = findRestaurant(id);
+        final var meal = new Meal(restaurant.getId(), createMealDto.getName(), createMealDto.getPrice());
 
         return mealRepository.save(meal);
     }
@@ -42,10 +42,11 @@ public class MealService {
         Checks.checkThat(atLeastOneFieldPresent(request),
                 ExceptionMessages.AT_LEAST_ONE_PROPERTY_SHOULD_BE_PRESENT_EXCEPTION_MESSAGE);
 
-        return new Meal(meal.getId(),
+        return mealRepository.save(new Meal(
+                meal.getId(),
                 meal.getRestaurantId(),
                 request.getName().orElse(meal.getName()),
-                request.getPrice().orElse(meal.getPrice()));
+                request.getPrice().orElse(meal.getPrice())));
     }
 
     public boolean deleteMeal(UUID id, UUID mealId) {
@@ -61,7 +62,8 @@ public class MealService {
 
     private Restaurant findRestaurant(UUID id) {
         return restaurantRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(ExceptionMessages.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE));
+                .orElseThrow(() ->
+                        new IllegalStateException(ExceptionMessages.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE));
     }
 
     private Meal findMeal(UUID id) {

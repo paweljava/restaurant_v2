@@ -1,7 +1,7 @@
 package com.restaurant.service;
 
-import com.restaurant.dto.restaurant.CreateRestaurantDto;
-import com.restaurant.dto.restaurant.UpdateRestaurantDto;
+import com.restaurant.controller.dto.restaurant.CreateRestaurantDto;
+import com.restaurant.controller.dto.restaurant.UpdateRestaurantDto;
 import com.restaurant.model.Meal;
 import com.restaurant.model.Restaurant;
 import com.restaurant.repository.RestaurantRepository;
@@ -48,9 +48,9 @@ public class RestaurantServiceTest {
     @Test
     void should_get_restaurants() {
         // given
-        final var restaurant1 = new Restaurant("Nazwa1", "Adres1", MEDITERRANEAN);
-        final var restaurant2 = new Restaurant("Nazwa2", "Adres2", POLISH);
-        final var restaurant3 = new Restaurant("Nazwa3", "Adres3", AMERICAN);
+        final var restaurant1 = new Restaurant("Nazwa1", "Adres1", MEDITERRANEAN, List.of());
+        final var restaurant2 = new Restaurant("Nazwa2", "Adres2", POLISH, List.of());
+        final var restaurant3 = new Restaurant("Nazwa3", "Adres3", AMERICAN, List.of());
         final var restaurantList = List.of(restaurant1, restaurant2, restaurant3);
 
         given(restaurantRepository.findAll()).willReturn(restaurantList);
@@ -127,6 +127,150 @@ public class RestaurantServiceTest {
         assertNotEquals(restaurant.getName(), updateRestaurantDto.getName().get());
         assertNotEquals(restaurant.getAddress(), updateRestaurantDto.getAddress().get());
         assertNotEquals(restaurant.getType(), updateRestaurantDto.getType().get());
+        verify(restaurantRepository).save(result);
+        verify(restaurantRepository).findById(result.getId());
+    }
+
+    @Test
+    void should_update_only_restaurant_name() {
+        // given
+        final var restaurant = new Restaurant("Nazwa", "Adres", POLISH);
+        final var updateRestaurantDto = new UpdateRestaurantDto(
+                some("Restauracja"),
+                Optional.empty(),
+                Optional.empty());
+        final var updatedRestaurant = new Restaurant(restaurant.getId(), "Restauracja", "Adres", POLISH);
+
+        given(restaurantRepository.save(updatedRestaurant)).willReturn(updatedRestaurant);
+        given(restaurantRepository.findById(restaurant.getId())).willReturn(Optional.of(restaurant));
+
+        // when
+        final var result = restaurantService.updateRestaurant(restaurant.getId(), updateRestaurantDto);
+
+        // then
+        assertEquals(restaurant.getId(), result.getId());
+        assertEquals(updateRestaurantDto.getName().get(), result.getName());
+        assertEquals(restaurant.getAddress(), result.getAddress());
+        assertEquals(restaurant.getType(), result.getType());
+        assertNotEquals(restaurant.getName(), updateRestaurantDto.getName().get());
+        verify(restaurantRepository).save(result);
+        verify(restaurantRepository).findById(result.getId());
+    }
+
+    @Test
+    void should_update_only_restaurant_address() {
+        // given
+        final var restaurant = new Restaurant("Nazwa", "Adres", POLISH);
+        final var updateRestaurantDto = new UpdateRestaurantDto(Optional.empty(), some("Konin"), Optional.empty());
+        final var updatedRestaurant = new Restaurant(restaurant.getId(), "Nazwa", "Konin", POLISH);
+
+        given(restaurantRepository.save(updatedRestaurant)).willReturn(updatedRestaurant);
+        given(restaurantRepository.findById(restaurant.getId())).willReturn(Optional.of(restaurant));
+
+        // when
+        final var result = restaurantService.updateRestaurant(restaurant.getId(), updateRestaurantDto);
+
+        // then
+        assertEquals(restaurant.getId(), result.getId());
+        assertEquals(restaurant.getName(), result.getName());
+        assertEquals(updateRestaurantDto.getAddress().get(), result.getAddress());
+        assertEquals(restaurant.getType(), result.getType());
+        assertNotEquals(restaurant.getAddress(), updateRestaurantDto.getAddress().get());
+        verify(restaurantRepository).save(result);
+        verify(restaurantRepository).findById(result.getId());
+    }
+
+    @Test
+    void should_update_only_restaurant_type() {
+        // given
+        final var restaurant = new Restaurant("Nazwa", "Adres", POLISH);
+        final var updateRestaurantDto = new UpdateRestaurantDto(Optional.empty(), Optional.empty(), some(AMERICAN));
+        final var updatedRestaurant = new Restaurant(restaurant.getId(), "Nazwa", "Adres", AMERICAN);
+
+        given(restaurantRepository.save(updatedRestaurant)).willReturn(updatedRestaurant);
+        given(restaurantRepository.findById(restaurant.getId())).willReturn(Optional.of(restaurant));
+
+        // when
+        final var result = restaurantService.updateRestaurant(restaurant.getId(), updateRestaurantDto);
+
+        // then
+        assertEquals(restaurant.getId(), result.getId());
+        assertEquals(restaurant.getName(), result.getName());
+        assertEquals(restaurant.getAddress(), result.getAddress());
+        assertEquals(updateRestaurantDto.getType().get(), result.getType());
+        assertNotEquals(restaurant.getType(), updateRestaurantDto.getType().get());
+        verify(restaurantRepository).save(result);
+        verify(restaurantRepository).findById(result.getId());
+    }
+
+    @Test
+    void should_not_update_restaurant_name() {
+        // given
+        final var restaurant = new Restaurant("Nazwa", "Adres", POLISH);
+        final var updateRestaurantDto = new UpdateRestaurantDto(Optional.empty(), some("Konin"), some(AMERICAN));
+        final var updatedRestaurant = new Restaurant(restaurant.getId(), "Nazwa", "Konin", AMERICAN);
+
+        given(restaurantRepository.save(updatedRestaurant)).willReturn(updatedRestaurant);
+        given(restaurantRepository.findById(restaurant.getId())).willReturn(Optional.of(restaurant));
+
+        // when
+        final var result = restaurantService.updateRestaurant(restaurant.getId(), updateRestaurantDto);
+
+        // then
+        assertEquals(restaurant.getId(), result.getId());
+        assertEquals(restaurant.getName(), result.getName());
+        assertEquals(updateRestaurantDto.getAddress().get(), result.getAddress());
+        assertEquals(updateRestaurantDto.getType().get(), result.getType());
+        assertNotEquals(restaurant.getAddress(), updateRestaurantDto.getAddress().get());
+        assertNotEquals(restaurant.getType(), updateRestaurantDto.getType().get());
+        verify(restaurantRepository).save(result);
+        verify(restaurantRepository).findById(result.getId());
+    }
+
+    @Test
+    void should_not_update_restaurant_address() {
+        // given
+        final var restaurant = new Restaurant("Nazwa", "Adres", POLISH);
+        final var updateRestaurantDto = new UpdateRestaurantDto(some("Restauracja"), Optional.empty(), some(AMERICAN));
+        final var updatedRestaurant = new Restaurant(restaurant.getId(), "Restauracja", "Adres", AMERICAN);
+
+        given(restaurantRepository.save(updatedRestaurant)).willReturn(updatedRestaurant);
+        given(restaurantRepository.findById(restaurant.getId())).willReturn(Optional.of(restaurant));
+
+        // when
+        final var result = restaurantService.updateRestaurant(restaurant.getId(), updateRestaurantDto);
+
+        // then
+        assertEquals(restaurant.getId(), result.getId());
+        assertEquals(updateRestaurantDto.getName().get(), result.getName());
+        assertEquals(restaurant.getAddress(), result.getAddress());
+        assertEquals(updateRestaurantDto.getType().get(), result.getType());
+        assertNotEquals(restaurant.getName(), updateRestaurantDto.getName().get());
+        assertNotEquals(restaurant.getType(), updateRestaurantDto.getType().get());
+        verify(restaurantRepository).save(result);
+        verify(restaurantRepository).findById(result.getId());
+    }
+
+    @Test
+    void should_not_update_only_restaurant_type() {
+        // given
+        final var restaurant = new Restaurant("Nazwa", "Adres", POLISH);
+        final var updateRestaurantDto = new UpdateRestaurantDto(some("Restauracja"), some("Konin"), Optional.empty());
+        final var updatedRestaurant = new Restaurant(restaurant.getId(), "Restauracja", "Konin", POLISH);
+
+        given(restaurantRepository.save(updatedRestaurant)).willReturn(updatedRestaurant);
+        given(restaurantRepository.findById(restaurant.getId())).willReturn(Optional.of(restaurant));
+
+        // when
+        final var result = restaurantService.updateRestaurant(restaurant.getId(), updateRestaurantDto);
+
+        // then
+        assertEquals(restaurant.getId(), result.getId());
+        assertEquals(updateRestaurantDto.getName().get(), result.getName());
+        assertEquals(updateRestaurantDto.getAddress().get(), result.getAddress());
+        assertEquals(restaurant.getType(), result.getType());
+        assertNotEquals(restaurant.getName(), updateRestaurantDto.getName().get());
+        assertNotEquals(restaurant.getAddress(), updateRestaurantDto.getAddress().get());
         verify(restaurantRepository).save(result);
         verify(restaurantRepository).findById(result.getId());
     }

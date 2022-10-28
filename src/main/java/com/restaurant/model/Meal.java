@@ -1,18 +1,18 @@
 package com.restaurant.model;
 
-import com.restaurant.dto.meal.CreateMealDto;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.constraints.Digits;
 import java.util.UUID;
 
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Meal {
 
     @Id
@@ -30,11 +30,6 @@ public class Meal {
     public Meal(UUID restaurantId, String name, float price) {
         this.id = UUID.randomUUID();
         this.restaurantId = restaurantId;
-        this.name = name;
-        this.price = price;
-    }
-
-    public Meal(CreateMealDto createMealDto) {
         this.name = name;
         this.price = price;
     }

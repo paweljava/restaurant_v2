@@ -1,4 +1,4 @@
-package com.restaurant.dto.restaurant;
+package com.restaurant.controller.dto.restaurant;
 
 import com.restaurant.model.RestaurantType;
 import lombok.AllArgsConstructor;

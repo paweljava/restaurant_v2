@@ -1,7 +1,7 @@
 package com.restaurant.service;
 
-import com.restaurant.dto.meal.CreateMealDto;
-import com.restaurant.dto.meal.UpdateMealDto;
+import com.restaurant.controller.dto.meal.CreateMealDto;
+import com.restaurant.controller.dto.meal.UpdateMealDto;
 import com.restaurant.model.Meal;
 import com.restaurant.model.Restaurant;
 import com.restaurant.repository.MealRepository;
@@ -53,7 +53,7 @@ public class MealServiceTest {
     }
 
     @Test
-    void should_update_meal() {
+    void should_update_meal_all_fields() {
         // given
         final var randomRestaurantId = UUID.randomUUID();
         List<Meal> meals = List.of(new Meal(randomRestaurantId, "Meal1", (float) 19));
@@ -77,7 +77,68 @@ public class MealServiceTest {
         assertEquals(updatedMeal.getPrice(), result.getPrice());
         verify(restaurantRepository).findById(restaurant.getId());
         verify(mealRepository).findById(meal.getId());
-        // weryfikacja ponizej wywala blad. Nie znajduje id w mealRepository
+        verify(mealRepository).save(argThat(
+                m -> m.getRestaurantId().equals(restaurant.getId()) &&
+                        m.getName().equals(updatedMeal.getName()))
+        );
+    }
+
+    @Test
+    void should_not_update_meal_name() {
+        // given
+        final var randomRestaurantId = UUID.randomUUID();
+        List<Meal> meals = List.of(new Meal(randomRestaurantId, "Meal1", (float) 19));
+        final var restaurant = new Restaurant(randomRestaurantId, "Nazwa", "Adres", MEDITERRANEAN, meals);
+        final var meal = restaurant.getMeals().get(0);
+        final var updateMealDto = new UpdateMealDto(Optional.empty(), some((float) 39.9));
+        final var updatedMeal = new Meal(meal.getId(), restaurant.getId(), "Meal1", (float) 39.9);
+
+        given(restaurantRepository.findById(restaurant.getId())).willReturn(Optional.of(restaurant));
+        given(mealRepository.findById(Optional.of(meal.getId()).get())).willReturn(Optional.of(meal));
+        given(mealRepository.save(updatedMeal)).willReturn(updatedMeal);
+
+        // when
+        final var result = mealService.updateMeal(restaurant.getId(), meal.getId(), updateMealDto);
+
+        // then
+        assertEquals(updatedMeal, result);
+        assertEquals(updatedMeal.getId(), result.getId());
+        assertEquals(restaurant.getId(), result.getRestaurantId());
+        assertEquals(updatedMeal.getName(), result.getName());
+        assertEquals(updatedMeal.getPrice(), result.getPrice());
+        verify(restaurantRepository).findById(restaurant.getId());
+        verify(mealRepository).findById(meal.getId());
+        verify(mealRepository).save(argThat(
+                m -> m.getRestaurantId().equals(restaurant.getId()) &&
+                        m.getName().equals(updatedMeal.getName()))
+        );
+    }
+
+    @Test
+    void should_not_update_meal_price() {
+        // given
+        final var randomRestaurantId = UUID.randomUUID();
+        List<Meal> meals = List.of(new Meal(randomRestaurantId, "Meal1", (float) 19));
+        final var restaurant = new Restaurant(randomRestaurantId, "Nazwa", "Adres", MEDITERRANEAN, meals);
+        final var meal = restaurant.getMeals().get(0);
+        final var updateMealDto = new UpdateMealDto(some("Updating name"), Optional.empty());
+        final var updatedMeal = new Meal(meal.getId(), restaurant.getId(), "Updating name", (float) 19);
+
+        given(restaurantRepository.findById(restaurant.getId())).willReturn(Optional.of(restaurant));
+        given(mealRepository.findById(Optional.of(meal.getId()).get())).willReturn(Optional.of(meal));
+        given(mealRepository.save(updatedMeal)).willReturn(updatedMeal);
+
+        // when
+        final var result = mealService.updateMeal(restaurant.getId(), meal.getId(), updateMealDto);
+
+        // then
+        assertEquals(updatedMeal, result);
+        assertEquals(updatedMeal.getId(), result.getId());
+        assertEquals(restaurant.getId(), result.getRestaurantId());
+        assertEquals(updatedMeal.getName(), result.getName());
+        assertEquals(updatedMeal.getPrice(), result.getPrice());
+        verify(restaurantRepository).findById(restaurant.getId());
+        verify(mealRepository).findById(meal.getId());
         verify(mealRepository).save(argThat(
                 m -> m.getRestaurantId().equals(restaurant.getId()) &&
                         m.getName().equals(updatedMeal.getName()))

@@ -1,5 +1,8 @@
 package com.restaurant;
 
+import com.restaurant.controller.dto.meal.CreateMealDto;
+import com.restaurant.controller.dto.meal.UpdateMealDto;
+import com.restaurant.controller.dto.restaurant.CreateRestaurantDto;
 import com.restaurant.model.Meal;
 import com.restaurant.model.Restaurant;
 import com.restaurant.repository.MealRepository;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static com.restaurant.model.RestaurantType.*;
+import static com.restaurant.util.Optionality.some;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
@@ -45,11 +49,7 @@ class RestaurantIntegrationTestAssured {
 
     @Test
     void should_create_restaurant() {
-        final var restaurant = Restaurant.builder().
-                name("Ciastkarnia").
-                address("Matrix").
-                type(AMERICAN).
-                build();
+        final var restaurant = new CreateRestaurantDto("Ciastkarnia", "Matrix", AMERICAN);
         given().
                 body(restaurant).
                 contentType(ContentType.JSON).
@@ -116,10 +116,7 @@ class RestaurantIntegrationTestAssured {
 
     @Test
     void should_create_meal() {
-        final var body = Meal.builder().
-                name("Pulpety").
-                price((float)21.10).
-                build();
+        final var body = new CreateMealDto("Pulpety", (float)21.10);
         given().
                 pathParam("id", restaurant.getId()).
                 body(body).
@@ -128,17 +125,13 @@ class RestaurantIntegrationTestAssured {
                 post("/restaurants/{id}/meals").
         then().
                 statusCode(200).
-                body("restaurantId", equalTo(restaurant.getId().toString())).
                 body("name", equalTo(body.getName())).
                 body("price", equalTo(body.getPrice()));
     }
 
     @Test
     void should_update_meal() {
-        final var body = Meal.builder().
-                name("Homar").
-                price((float)34.7).
-                build();
+        final var body = new UpdateMealDto(some("Homar"), some((float)34.7));
         given().
                 pathParam("id", restaurant.getId()).
                 pathParam("mealid", meal.getId()).
@@ -148,10 +141,8 @@ class RestaurantIntegrationTestAssured {
                 put("/restaurants/{id}/meals/{mealid}").
         then().
                 statusCode(200).
-                body("id", equalTo(meal.getId().toString())).
-                body("restaurantId", equalTo(restaurant.getId().toString())).
-                body("name", equalTo(body.getName())).
-                body("price", equalTo(body.getPrice()));
+                body("name", equalTo(body.getName().get())).
+                body("price", equalTo(body.getPrice().get()));
     }
 
     @Test
